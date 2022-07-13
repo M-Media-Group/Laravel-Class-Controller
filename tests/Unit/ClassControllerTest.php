@@ -19,12 +19,13 @@ class ClassControllerTest extends TestCase
     }
 
     /**
-     * A basic test example.
+     * A basic test example that is later used when generating routes for this class implementing the ClassController.
      *
      * @coversNothing
+     * @param string $test used to test the route with parameters
      * @return void
      */
-    public function test_that_true_is_true()
+    public function test_that_true_is_true(string $test = null)
     {
         $this->assertTrue(true);
     }
