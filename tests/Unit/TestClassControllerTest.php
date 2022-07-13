@@ -20,7 +20,6 @@ class TestClassControllerTest extends TestCase
         parent::setUp();
     }
 
-
     /**
      * Test that we can add a new Route and call it using a method from the inherited class
      *
@@ -88,19 +87,8 @@ class TestClassControllerTest extends TestCase
         $response = $this->getJson('/test-route');
         $this->assertEquals(422, $response->getStatusCode());
 
-        $jsonData = $response->decodeResponseJson();
-        // $jsonData should contain the key "errors" and "param", for the missing param type
-        $this->assertArrayHasKey('errors', $jsonData, "Missing errors key in JSON response for $paramType");
-        $this->assertArrayHasKey('param', $jsonData['errors'], "Missing param key in JSON response for $paramType");
-        // The key param should contain an array
-        $this->assertIsArray($jsonData['errors']['param']);
-        // The array should contain at least one element
-        $this->assertGreaterThan(0, count($jsonData['errors']['param']));
-        // The first element should say "The param field is required."
-        $this->assertStringContainsString(
-            "is required.",
-            $jsonData['errors']['param'][0]
-        );
+        $this->assertValidJsonResponseWithErrors($response, $paramType);
+        $this->assertValidJsonResponseWithErrors($response, $paramType, fn ($jsonData) => $this->assertStringContainsString("is required.", $jsonData['errors']['param'][0]));
 
         /**
          * Calling directly (not as JSON) should return a 302 redirect with error message
@@ -109,6 +97,49 @@ class TestClassControllerTest extends TestCase
         $this->assertRedirectWithErrors($response);
     }
 
+    /**
+     * Test that we can add a new Route and call it using a method from the inherited class
+     *
+     * @return void
+     */
+    public function testUnionTypesShouldFailWhenNoneMatched()
+    {
+        $this->createRoute('intOrFloatParam');
+
+        // Call the route
+        $response = $this->postJson('/test-route', ['param' => 'not an int or float']);
+
+        // Assert the response has a 200 status code
+        $this->assertEquals(422, $response->getStatusCode());
+        $this->assertValidJsonResponseWithErrors($response, 'intOrFloatParam', fn ($jsonData) => $this->assertStringContainsString("is invalid.", $jsonData['errors']['param'][0]));
+
+        /**
+         * Calling directly (not as JSON) should return a 302 redirect with success message
+         */
+
+        // Call the route
+        $response = $this->call('GET', '/test-route');
+
+        // Assert the response has a 302 status code
+        $this->assertRedirectWithErrors($response);
+    }
+
+    private function assertValidJsonResponseWithErrors($response, $paramType, callable $callback = null)
+    {
+        $jsonData = $response->decodeResponseJson();
+        // $jsonData should contain the key "errors" and "param", for the missing param type
+        $this->assertArrayHasKey('errors', $jsonData, "Missing errors key in JSON response for $paramType");
+        $this->assertArrayHasKey('param', $jsonData['errors'], "Missing param key in JSON response for $paramType");
+        // The key param should contain an array
+        $this->assertIsArray($jsonData['errors']['param']);
+        // The array should contain at least one element
+        $this->assertGreaterThan(0, count($jsonData['errors']['param']));
+
+        // Call the callback function to assert the error message
+        if ($callback) {
+            $callback($jsonData);
+        }
+    }
 
     private function assertRedirectWithErrors($response)
     {

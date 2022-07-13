@@ -154,6 +154,8 @@ class ClassController extends Controller
     private function convertPHPTypeToLaravelValidationRule(string $type): string
     {
         switch ($type) {
+            case 'mixed':
+                return '';
             case 'int':
                 return 'integer';
             case 'string':
@@ -198,21 +200,49 @@ class ClassController extends Controller
                 $rulesForParam[] = 'array';
                 // If the parameter is typed, add the type rule to each element
                 if ($param->getType() !== null) {
-                    $rules[$param->getName() . '.*'] = $this->convertPHPTypeToLaravelValidationRule($param->getType()->getName());
+                    $rules[$param->getName() . '.*'] = $this->getLaravelRulesForParam($param);
                 }
             } elseif ($param->getType() !== null) {
-                $rulesForParam[] = $this->convertPHPTypeToLaravelValidationRule($param->getType()->getName());
-            }
-
-            // If the parameter is variadic, add the array rule
-            if ($param->isVariadic()) {
-                $rulesForParam[] = 'array';
+                // Merge the rules for the parameter with the rules for the parameter
+                $rulesForParam = array_merge($rulesForParam, $this->getLaravelRulesForParam($param));
             }
 
             $rules[$param->getName()] = $rulesForParam;
         }
-
         return $rules;
+    }
+
+    /**
+     * Get a set of rules for a given parameter
+     *
+     * @param \ReflectionParameter $param
+     * @return array of Laravel validation rules
+     */
+    private function getLaravelRulesForParam(\ReflectionParameter $param): array
+    {
+        // If is typeof union ReflectionType, convert it to a string
+        if ($param->getType() instanceof \ReflectionUnionType) {
+            $types = $param->getType()->getTypes();
+            // For each type, convert it to a string and add it to the array
+            $types = array_map(function ($type) {
+                return $this->convertPHPTypeToLaravelValidationRule($type->getName());
+            }, $types);
+
+            $callable = function ($attribute, $value, $fail) use ($types) {
+                // Check if value is instanceof of any type
+                foreach ($types as $type) {
+                    if ($value instanceof $type) {
+                        return;
+                    }
+                }
+                $fail('The ' . $attribute . ' is invalid.');
+            };
+            return [$callable];
+        }
+
+        // Else just get the name and convert it
+        $type = $param->getType()->getName();
+        return [$this->convertPHPTypeToLaravelValidationRule($type)];
     }
 
     /**
