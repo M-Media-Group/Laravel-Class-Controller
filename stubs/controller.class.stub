@@ -1,0 +1,34 @@
+<?php
+
+namespace {{ namespace }};
+
+use MMedia\ClassController\Http\Controllers\ClassController;
+
+use Illuminate\Http\Request;
+
+class {{ class }}ClassController extends ClassController
+{
+
+    protected $inheritedClass = '{{ class }}';
+
+    /**
+     * Get the class parameters. This method is used to get the class parameters for the class instance. Remove if not needed.
+     *
+     * @return iterable an iterable of parameters to be used in the class constructor, or an empty array if no parameters are needed
+     */
+    protected function classParameters(): iterable
+    {
+        return [];
+    }
+
+    /**
+     * Additional setup in the constructor for the current $this->class(). If you need to do additional operations on the class to set it up, you should over-write this method and do your own logic here. Remove if not needed.
+     *
+     * @return void
+     */
+    protected function postClassSetup(): void
+    {
+        //
+    }
+
+}
