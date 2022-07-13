@@ -244,7 +244,7 @@ class ClassController extends Controller
      *
      * @return object
      */
-    protected function class(): object
+    public function class(): object
     {
         return $this->classInstance;
     }
