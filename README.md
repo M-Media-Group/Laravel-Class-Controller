@@ -28,11 +28,11 @@ class TestClassController extends ClassController
 ```
 When you extend a `ClassController` and give your new controller a name like `{inheritedClass}ClassController`, all of the methods of `{inheritedClass}` are inherited and wrapped with Laravel validation rules and responses. If you need a namespaced class, you can use `[inheritedClass](#inheritedclass)` property to specify a class with its namespace instead.
 
-In your routes, you can now call all the methods of the inheritedClass, [`MainGCI::class`](https://gitlab.tkblueagency.com:2443/tkblue/tkblue-web/-/blob/Develop/inc/class/MainGCI.class.php) in this case, directly:
+In your routes, you can now call all the methods of the inheritedClass, [`Test::class`](https://github.com/M-Media-Group/Laravel-Class-Controller/blob/master/examples/Test.php) in this case, directly:
 ```php
 // We're just using the methods in the inherited class methods directly
-Route::get('/noParams', [TestClassController::class, 'noParams']); // === \MainGCI::noParams()
-Route::get('/mixedParam/{param}', [TestClassController::class, 'mixedParam']); // === \MainGCI::mixedParam($idZone) + auto validation!
+Route::get('/noParams', [TestClassController::class, 'noParams']); // === \Test::noParams()
+Route::get('/mixedParam/{param}', [TestClassController::class, 'mixedParam']); // === \Test::mixedParam($idZone) + auto validation!
 ```
 
 <details><summary>Here is the equivalent when extending the default Controller instead</summary>
@@ -86,7 +86,7 @@ protected function postClassSetup(): void
 ```
 
 ## Overriding a specific method
-If you need to override the behaviour of a specific method, you can simply define it in your controller using the method name that you want to override. Using the original example of `MainGCI::class`:
+If you need to override the behaviour of a specific method, you can simply define it in your controller using the method name that you want to override. Using the original example of `Test::class`:
 ```php
 public function mixedParam(Request $request)
 {
