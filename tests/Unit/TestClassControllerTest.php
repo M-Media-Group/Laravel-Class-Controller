@@ -94,12 +94,25 @@ class TestClassControllerTest extends TestCase
             'arrayVariadicParam',
             'objectVariadicParam',
             'floatVariadicParam',
-            'mixedParamWithDefaultAndVariadic'
+            // 'mixedParamWithDefaultAndVariadic' // Special test case, that has a default param so wont show the "param" as an error
         ];
         foreach ($paramTypes as $paramType) {
             $this->createRoute($paramType);
             $response = $this->getJson('/test-route');
+            $jsonData = $response->decodeResponseJson();
             $this->assertEquals(422, $response->getStatusCode());
+            // $jsonData should contain the key "param"
+            $this->assertArrayHasKey('errors', $jsonData, "Missing errors key in JSON response for $paramType");
+            $this->assertArrayHasKey('param', $jsonData['errors'], "Missing param key in JSON response for $paramType");
+            // The key param should contain an array
+            $this->assertIsArray($jsonData['errors']['param']);
+            // The array should contain at least one element
+            $this->assertGreaterThan(0, count($jsonData['errors']['param']));
+            // The first element should say "The param field is required."
+            $this->assertStringContainsString(
+                "is required.",
+                $jsonData['errors']['param'][0]
+            );
 
             /**
              * Calling directly (not as JSON) should return a 302 redirect with success message
