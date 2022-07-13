@@ -156,10 +156,12 @@ class ClassController extends Controller
         switch ($type) {
             case 'mixed':
                 return '';
+            case 'integer':
             case 'int':
                 return 'integer';
             case 'string':
                 return 'string';
+            case 'boolean':
             case 'bool':
                 return 'boolean';
             case 'float':
@@ -230,12 +232,12 @@ class ClassController extends Controller
 
             $callable = function ($attribute, $value, $fail) use ($types) {
                 // Check if value is instanceof of any type
-                foreach ($types as $type) {
-                    if ($value instanceof $type) {
-                        return;
-                    }
+                $valueType = $this->convertPHPTypeToLaravelValidationRule(gettype($value));
+
+                // If the value is not an instanceof any type, fail
+                if (!in_array($valueType, $types)) {
+                    $fail('The ' . $attribute . ' must be a type of ' . implode(' or ', $types) . '.');
                 }
-                $fail('The ' . $attribute . ' is invalid.');
             };
             return [$callable];
         }

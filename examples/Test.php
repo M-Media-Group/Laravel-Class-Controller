@@ -101,7 +101,7 @@ class Test
         return true;
     }
 
-    public function mixedVariadicParam(...$param)
+    public function mixedVariadicParam(mixed ...$param)
     {
         return true;
     }

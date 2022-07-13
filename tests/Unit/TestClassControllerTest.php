@@ -111,7 +111,7 @@ class TestClassControllerTest extends TestCase
 
         // Assert the response has a 200 status code
         $this->assertEquals(422, $response->getStatusCode());
-        $this->assertValidJsonResponseWithErrors($response, 'intOrFloatParam', fn ($jsonData) => $this->assertStringContainsString("is invalid.", $jsonData['errors']['param'][0]));
+        $this->assertValidJsonResponseWithErrors($response, 'intOrFloatParam', fn ($jsonData) => $this->assertStringContainsString("must be a type of", $jsonData['errors']['param'][0]));
 
         /**
          * Calling directly (not as JSON) should return a 302 redirect with success message
@@ -122,6 +122,35 @@ class TestClassControllerTest extends TestCase
 
         // Assert the response has a 302 status code
         $this->assertRedirectWithErrors($response);
+    }
+
+    /**
+     * Test that we can add a new Route and call it using a method from the inherited class
+     *
+     * @return void
+     */
+    public function testUnionTypesShouldPassWhenMatched()
+    {
+        $this->createRoute('intOrFloatParam');
+
+        // Call the route
+        $response = $this->postJson('/test-route', ['param' => 1]);
+
+        // Assert the response has a 200 status code
+        $this->assertEquals(200, $response->getStatusCode());
+
+        /**
+         * Calling directly (not as JSON) should return a 302 redirect with success message
+         */
+
+        // Call the route
+        $response = $this->call('GET', '/test-route');
+
+        // Assert the response has a 302 status code
+        $this->assertEquals(
+            302,
+            $response->getStatusCode()
+        );
     }
 
     private function assertValidJsonResponseWithErrors($response, $paramType, callable $callback = null)
