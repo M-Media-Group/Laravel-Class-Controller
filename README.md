@@ -2,6 +2,8 @@
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/mmedia/classcontroller.svg?style=flat-square)](https://packagist.org/packages/mmedia/classcontroller)
 [![Total Downloads](https://img.shields.io/packagist/dt/mmedia/classcontroller.svg?style=flat-square)](https://packagist.org/packages/mmedia/classcontroller)
+![Maintained](https://img.shields.io/maintenance/yes/2022?style=flat-square)
+
 <!-- ![GitHub Actions](https://github.com/mmedia/classcontroller/actions/workflows/main.yml/badge.svg) -->
 
 The ClassController extends the basic Controller and allows you to use defined PHP class methods directly as controller methods.
@@ -91,13 +93,13 @@ If you need to override the behaviour of a specific method, you can simply defin
 public function mixedParam(Request $request)
 {
     // You can write your own $request->validate(), or use the one from ClassController which validates that the data passed to the original class method is correct
-    $validatedData = $this->getValidatedData('mixedParam');
+    $validatedData = $this->getValidatedData($this->class(), 'mixedParam');
 
     // Call the original meethod if you want, or override it completely
     return $this->class()->mixedParam($validatedData['param']);
 }
 ```
-Note that while you can write your own validation logic, here we chose to use the already existing method [`getValidatedData()`](#getvalidateddatamethodname-array) that is provided by the ClassController - the method takes a class method name as a parameter and then validates all the required method parameters.
+Note that while you can write your own validation logic, here we chose to use the already existing method [`getValidatedData()`](#getvalidateddataclassnamemethodname-array) that is provided by the ClassController - the method takes a class method name as a parameter and then validates all the required method parameters.
 
 ## In detail
 
@@ -146,8 +148,8 @@ Parameters passed to the inherited class constructor. [See: defining parameters 
 ### `postClassSetup(): void`
 Method that runs after the class is instantiated. [See: further setting up the class after instantiation](#further-setting-up-the-class-after-instantiation).
 
-### `getValidatedData($methodName): array`
-Method that takes the name of a method in the instantiated class, looks through the method parameters, generates a Laravel validation instance and validates it using Laravel rules. Returns an array of valid data, or throws a [`ValidationException`](#validation-exceptions) if there is a validation error. [See: validation](#validation).
+### `getValidatedData($className, $methodName): array`
+Method that takes the name of a method and a class, looks through the method parameters, generates a Laravel validation instance and validates it using Laravel rules. Returns an array of valid data, or throws a [`ValidationException`](#validation-exceptions) if there is a validation error. [See: validation](#validation).
 
 ### `class(): object`
 Get an instance of the inherited class. The actual instance of the class, already instantiated.
