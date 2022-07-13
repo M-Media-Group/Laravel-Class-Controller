@@ -33,8 +33,11 @@ class ClassController extends Controller
     /**
      * Constructor
      */
-    public function __construct()
+    public function __construct(?string $inheritedClass = null)
     {
+        if ($inheritedClass) {
+            $this->inheritedClass = $inheritedClass;
+        }
         $this->setupClass();
     }
 
@@ -44,7 +47,7 @@ class ClassController extends Controller
      * @throws Exception if the class that is defined in the $inheritedClass does not exist
      * @return void
      */
-    final private function setupClass(): void
+    private function setupClass(): void
     {
         if (!isset($this->inheritedClass) && !$this->inheritedClass = $this->getNameFromParentClassName()) {
             throw new \Exception('The $inheritedClass property is not defined. You can either define the property or end your class/controller name with ' . $this->classControllerName);
@@ -91,7 +94,7 @@ class ClassController extends Controller
      * @throws Exception if the method does not exist in the class
      * @return \Illuminate\Http\JsonResponse
      */
-    public function __call(string $method, $parameters)
+    public function __call($method, $parameters)
     {
         if (!method_exists($this->inheritedClass, $method)) {
             throw new \Exception('Method ' . $method . ' does not exist in class ' . $this->inheritedClass);
