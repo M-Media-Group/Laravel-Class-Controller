@@ -31,8 +31,8 @@ When you extend a `ClassController` and give your new controller a name like `{i
 In your routes, you can now call all the methods of the inheritedClass, [`MainGCI::class`](https://gitlab.tkblueagency.com:2443/tkblue/tkblue-web/-/blob/Develop/inc/class/MainGCI.class.php) in this case, directly:
 ```php
 // We're just using the methods in the inherited class methods directly
-Route::get('/noParams', [MainGCIClassController::class, 'noParams']); // === \MainGCI::noParams()
-Route::get('/mixedParam/{param}', [MainGCIClassController::class, 'mixedParam']); // === \MainGCI::mixedParam($idZone) + auto validation!
+Route::get('/noParams', [TestClassController::class, 'noParams']); // === \MainGCI::noParams()
+Route::get('/mixedParam/{param}', [TestClassController::class, 'mixedParam']); // === \MainGCI::mixedParam($idZone) + auto validation!
 ```
 
 <details><summary>Here is the equivalent when extending the default Controller instead</summary>
