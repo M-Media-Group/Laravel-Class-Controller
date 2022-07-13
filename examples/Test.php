@@ -61,6 +61,11 @@ class Test
         return true;
     }
 
+    public function stringOrNullParam(?string $param)
+    {
+        return true;
+    }
+
     public function mixedParamWithDefault($param = null)
     {
         return true;

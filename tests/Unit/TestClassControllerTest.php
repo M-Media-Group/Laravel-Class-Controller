@@ -153,6 +153,35 @@ class TestClassControllerTest extends TestCase
         );
     }
 
+    /**
+     * Test that we can add a new Route and call it using a method from the inherited class
+     *
+     * @return void
+     */
+    public function testExceptionIsPassed()
+    {
+        $this->createRoute('throwsException');
+
+        // Call the route
+        $response = $this->getJson('/test-route');
+
+        // Assert the response has a 200 status code
+        $this->assertEquals(400, $response->getStatusCode());
+
+        /**
+         * Calling directly (not as JSON) should return a 302 redirect with success message
+         */
+
+        // Call the route
+        $response = $this->call('GET', '/test-route');
+
+        // Assert the response has a 302 status code
+        $this->assertEquals(
+            400,
+            $response->getStatusCode()
+        );
+    }
+
     private function assertValidJsonResponseWithErrors($response, $paramType, callable $callback = null)
     {
         $jsonData = $response->decodeResponseJson();
@@ -214,6 +243,7 @@ class TestClassControllerTest extends TestCase
             ['arrayVariadicParam'],
             ['objectVariadicParam'],
             ['floatVariadicParam'],
+            ['stringOrNullParam'],
             // ['mixedParamWithDefaultAndVariadic'] // Special test case, that has a default param so wont show the "param" as an error
         ];
     }
