@@ -89,34 +89,6 @@ class ClassController extends Controller
     }
 
     /**
-     * Catch and route all calls to methods() that are not defined in this controller.
-     *
-     * @param string $method
-     * @param array|null $parameters - currently unused, the passed parameters are taken from the request() object
-     * @throws Exception if the method does not exist in the class
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function __call($method, $parameters)
-    {
-        if (!method_exists($this->inheritedClass, $method)) {
-            throw new \Exception('Method ' . $method . ' does not exist in class ' . $this->inheritedClass);
-        }
-
-        $data = $this->getValidatedData($this->inheritedClass, $method);
-
-        try {
-            $methodResult = call_user_func_array([$this->class(), $method], $data);
-
-            if (request()->wantsJson()) {
-                return response()->json($methodResult, 200);
-            }
-            return back()->with('success', $methodResult);
-        } catch (\Exception $e) {
-            return abort(400, $e->getMessage());
-        }
-    }
-
-    /**
      * Get an instance of the class that is being inherited from
      *
      * @return object
@@ -146,5 +118,33 @@ class ClassController extends Controller
             return $parentClassName;
         }
         return null;
+    }
+
+    /**
+     * Catch and route all calls to methods() that are not defined in this controller.
+     *
+     * @param string $method
+     * @param array|null $parameters - currently unused, the passed parameters are taken from the request() object
+     * @throws Exception if the method does not exist in the class
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function __call($method, $parameters)
+    {
+        if (!method_exists($this->inheritedClass, $method)) {
+            return parent::__call($method, $parameters);
+        }
+
+        $data = $this->getValidatedData($this->inheritedClass, $method);
+
+        try {
+            $methodResult = call_user_func_array([$this->class(), $method], $data);
+
+            if (request()->wantsJson()) {
+                return response()->json($methodResult, 200);
+            }
+            return back()->with('success', $methodResult);
+        } catch (\Exception $e) {
+            return abort(400, $e->getMessage());
+        }
     }
 }

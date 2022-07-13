@@ -11,10 +11,8 @@ class TestClassController extends ClassController
 {
     /**
      * Even though we named our controller TestClassController, we set the inheritedClass property here because it is namespaced.
-     *
-     * @var string
      */
-    protected $inheritedClass = 'MMedia\ClassController\Examples\Test';
+    protected $inheritedClass = \MMedia\ClassController\Examples\Test::class;
 
     //Done. All methods from Test.php are inherited and wrapped in Laravel validation automatically
 }
