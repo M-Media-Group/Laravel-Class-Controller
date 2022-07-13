@@ -30,7 +30,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "MMedia\\ClassController\\Tests\\": "tests"
+            "MMedia\\ClassController\\Tests\\": "tests",
+            "MMedia\\ClassController\\Examples\\": "examples"
         }
     },
     "scripts": {
