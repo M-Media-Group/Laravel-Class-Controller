@@ -7,8 +7,9 @@ namespace MMedia\ClassController\Examples;
  */
 class Test
 {
-    public function __construct()
+    public function __construct($param = null)
     {
+        //
     }
 
     public function noParams()
@@ -47,6 +48,11 @@ class Test
     }
 
     public function untypedParam($param)
+    {
+        return true;
+    }
+
+    public function multipleParams($param, $param2, $param3)
     {
         return true;
     }
@@ -107,6 +113,11 @@ class Test
     }
 
     public function mixedVariadicParam(mixed ...$param)
+    {
+        return true;
+    }
+
+    public function variadicParam(...$param)
     {
         return true;
     }

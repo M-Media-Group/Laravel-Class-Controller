@@ -27,50 +27,12 @@ class TestClassControllerTest extends TestCase
      */
     public function testShouldNotValidateIfNoParamsInMethod()
     {
-        $this->createRoute('noParams');
-
-        // Call the route
-        $response = $this->getJson('/test-route');
-
-        // Assert the response has a 200 status code
-        $this->assertEquals(200, $response->getStatusCode());
-
-        /**
-         * Calling directly (not as JSON) should return a 302 redirect with success message
-         */
-
-        // Call the route
-        $response = $this->call('GET', '/test-route');
-
-        // Assert the response has a 200 status code
-        $this->assertEquals(
-            302,
-            $response->getStatusCode()
-        );
+        $this->assertOk('noParams');
     }
 
     public function testShouldNotValidateIfParamHasDefaultValue()
     {
-        $this->createRoute('mixedParamWithDefault');
-
-        // Call the route
-        $response = $this->getJson('/test-route');
-
-        // Assert the response has a 200 status code
-        $this->assertEquals(200, $response->getStatusCode());
-
-        /**
-         * Calling directly (not as JSON) should return a 302 redirect with success message
-         */
-
-        // Call the route
-        $response = $this->call('GET', '/test-route');
-
-        // Assert the response has a 200 status code
-        $this->assertEquals(
-            302,
-            $response->getStatusCode()
-        );
+        $this->assertOk('mixedParamWithDefault');
     }
 
     /**
@@ -131,26 +93,17 @@ class TestClassControllerTest extends TestCase
      */
     public function testUnionTypesShouldPassWhenMatched()
     {
-        $this->createRoute('intOrFloatParam');
+        $this->assertOk('intOrFloatParam', ['param' => 1]);
+    }
 
-        // Call the route
-        $response = $this->postJson('/test-route', ['param' => 1]);
-
-        // Assert the response has a 200 status code
-        $this->assertEquals(200, $response->getStatusCode());
-
-        /**
-         * Calling directly (not as JSON) should return a 302 redirect with success message
-         */
-
-        // Call the route
-        $response = $this->call('GET', '/test-route');
-
-        // Assert the response has a 302 status code
-        $this->assertEquals(
-            302,
-            $response->getStatusCode()
-        );
+    /**
+     * Test that we can add a new Route and call it using a method from the inherited class
+     *
+     * @return void
+     */
+    public function testVariadicTypesShouldPassWhenMatched()
+    {
+        $this->assertOk('variadicParam', ['param' => [1, 2, 3]]);
     }
 
     /**
@@ -224,6 +177,29 @@ class TestClassControllerTest extends TestCase
         $this->assertTrue(Route::has('test-route'));
     }
 
+    private function assertOk($method, $params = [])
+    {
+        $this->createRoute($method);
+
+        // Call the route
+        $response = $this->postJson('/test-route', $params);
+        // Assert the response has a 200 status code
+        $this->assertEquals(200, $response->getStatusCode());
+
+        /**
+         * Calling directly (not as JSON) should return a 302 redirect with success message
+         */
+
+        // Call the route
+        $response = $this->call('GET', '/test-route');
+
+        // Assert the response has a 200 status code
+        $this->assertEquals(
+            302,
+            $response->getStatusCode()
+        );
+    }
+
     public function methodsWithParams()
     {
         return [
@@ -244,6 +220,8 @@ class TestClassControllerTest extends TestCase
             ['objectVariadicParam'],
             ['floatVariadicParam'],
             ['stringOrNullParam'],
+            ['multipleParams'],
+            ['variadicParam']
             // ['mixedParamWithDefaultAndVariadic'] // Special test case, that has a default param so wont show the "param" as an error
         ];
     }

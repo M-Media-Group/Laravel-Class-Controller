@@ -4,10 +4,12 @@ namespace MMedia\ClassController\Http\Controllers;
 
 // use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Validation\ValidationException;
+use MMedia\ClassController\ValidatesClassMethods;
 
 class ClassController extends Controller
 {
+
+    use ValidatesClassMethods;
 
     /**
      * A class name
@@ -100,7 +102,7 @@ class ClassController extends Controller
             throw new \Exception('Method ' . $method . ' does not exist in class ' . $this->inheritedClass);
         }
 
-        $data = $this->getValidatedData($method);
+        $data = $this->getValidatedData($this->inheritedClass, $method);
 
         try {
             $methodResult = call_user_func_array([$this->class(), $method], $data);
@@ -112,163 +114,6 @@ class ClassController extends Controller
         } catch (\Exception $e) {
             return abort(400, $e->getMessage());
         }
-    }
-
-    /**
-     * Validate the parameters that the class takes
-     *
-     * @param object|string $class
-     * @param iterable $setParameters
-     * @return void
-     */
-    private function validateConstructorParameters($class, iterable $setParameters): void
-    {
-        if (!method_exists($class, '__construct')) {
-            return;
-        }
-
-        // Get the parameters that the constructor takes
-        $reflection = new \ReflectionMethod($class, '__construct');
-        $parameters = $reflection->getParameters();
-
-        $i = 0;
-
-        // If one of the parameters are not in classParameters(), throw an exception
-        foreach ($parameters as $parameter) {
-            // If the parameter does not have a default value, check that it is in classParameters()
-            if (!$parameter->isDefaultValueAvailable()) {
-                if (!isset($setParameters[$i])) {
-                    throw new \Exception('The class ' . $class . ' requires the parameter ' . $parameter->name . ' to be set as the ' . ($i + 1) . ' parameter. Define the method classParameters() in your class to set the parameters. It should be the same order as the constructor parameters.');
-                }
-            }
-            $i++;
-        }
-    }
-
-    /**
-     * Convert a native PHP type to a Laravel validation rule
-     *
-     * @param string $type
-     * @return string
-     */
-    private function convertPHPTypeToLaravelValidationRule(string $type): string
-    {
-        switch ($type) {
-            case 'mixed':
-                return '';
-            case 'integer':
-            case 'int':
-                return 'integer';
-            case 'string':
-                return 'string';
-            case 'boolean':
-            case 'bool':
-                return 'boolean';
-            case 'float':
-                return 'float';
-            case 'array':
-                return 'array';
-            case 'object':
-                return 'object';
-            case 'null':
-                return 'nullable';
-            default:
-                return 'string';
-        }
-    }
-
-    /**
-     * Generate Laravel validation rules from a methods parameters
-     *
-     * @param \ReflectionMethod|string $method the name of the method to generate the rules for
-     * @return array
-     */
-    private function generateRulesFromMethodParameters($method): array
-    {
-        // Get the parameters that the method takes
-        $reflection = $this->getReflectionMethod($method);
-        $params = $reflection->getParameters();
-
-        $rules = [];
-
-        foreach ($params as $param) {
-            $rulesForParam = [];
-
-            // If the rule has a default value, then make the rule nullable
-            $rulesForParam[] = $param->isDefaultValueAvailable() ? 'nullable' : 'required';
-
-            // If the parameter is variadic, add the array rule. Otherwise if a type exists, just add the type rule
-            if ($param->isVariadic()) {
-                $rulesForParam[] = 'array';
-                // If the parameter is typed, add the type rule to each element
-                if ($param->getType() !== null) {
-                    $rules[$param->getName() . '.*'] = $this->getLaravelRulesForParam($param);
-                }
-            } elseif ($param->getType() !== null) {
-                // Merge the rules for the parameter with the rules for the parameter
-                $rulesForParam = array_merge($rulesForParam, $this->getLaravelRulesForParam($param));
-            }
-
-            $rules[$param->getName()] = $rulesForParam;
-        }
-        return $rules;
-    }
-
-    /**
-     * Get a set of rules for a given parameter
-     *
-     * @param \ReflectionParameter $param
-     * @return array of Laravel validation rules
-     */
-    private function getLaravelRulesForParam(\ReflectionParameter $param): array
-    {
-        // If is typeof union ReflectionType, convert it to a string
-        if ($param->getType() instanceof \ReflectionUnionType) {
-            $types = $param->getType()->getTypes();
-            // For each type, convert it to a string and add it to the array
-            $types = array_map(function ($type) {
-                return $this->convertPHPTypeToLaravelValidationRule($type->getName());
-            }, $types);
-
-            $callable = function ($attribute, $value, $fail) use ($types) {
-                // Check if value is instanceof of any type
-                $valueType = $this->convertPHPTypeToLaravelValidationRule(gettype($value));
-
-                // If the value is not an instanceof any type, fail
-                if (!in_array($valueType, $types)) {
-                    $fail('The ' . $attribute . ' must be a type of ' . implode(' or ', $types) . '.');
-                }
-            };
-            return [$callable];
-        }
-
-        // Else just get the name and convert it
-        $type = $param->getType()->getName();
-        return [$this->convertPHPTypeToLaravelValidationRule($type)];
-    }
-
-    /**
-     * Get the validated data for a given method or return a validation error response
-     *
-     * @param \ReflectionMethod|string $method
-     * @throws ValidationException
-     * @return array
-     */
-    protected function getValidatedData($method): array
-    {
-        $rules = $this->generateRulesFromMethodParameters($method);
-
-        // Merge the route params with the request
-        request()->merge(request()->route()->parameters());
-
-        // Validate the request
-        $validator = validator(request()->all(), $rules);
-        if ($validator->fails()) {
-            throw new ValidationException($validator);
-        }
-
-        // Get the validated data
-        return $this->destructureVariadicParameters($method, $validator->validated());
     }
 
     /**
@@ -301,61 +146,5 @@ class ClassController extends Controller
             return $parentClassName;
         }
         return null;
-    }
-
-    /**
-     * Destrcture the variadic parameters from the validated data
-     *
-     * @param \ReflectionMethod|string $method
-     * @param array $data
-     * @return array of data with the variadic parameters destructured
-     */
-    private function destructureVariadicParameters(string $method, array $data): array
-    {
-        // If we found a variadic parameter, we need to unpack the array that is in $data[$variadicParameter]
-        if ($variadicParameter = $this->getVariadicParameter($method)) {
-            $variadicData = $data[$variadicParameter];
-            unset($data[$variadicParameter]);
-            array_push($data, ...$variadicData);
-        }
-
-        return $data;
-    }
-
-    /**
-     * Get the variadic parameter for a given method
-     *
-     * @param \ReflectionMethod|string $method
-     * @return string|null the name of the variadic parameter
-     */
-    private function getVariadicParameter($method): ?string
-    {
-        // Check if one of the parameters is a variadic parameter, if so, we need to unpack the array
-        $reflectionMethod = $this->getReflectionMethod($method);
-        $parameters = $reflectionMethod->getParameters();
-
-        // Find the variadic parameter
-        $variadicParameter = null;
-        foreach ($parameters as $parameter) {
-            if ($parameter->isVariadic()) {
-                $variadicParameter = $parameter->getName();
-                break;
-            }
-        }
-        return $variadicParameter;
-    }
-
-    /**
-     * Get an instance of a reflection method if the passed $method is not already a reflection method
-     *
-     * @param \ReflectionMethod|string $method
-     * @return \ReflectionMethod
-     */
-    private function getReflectionMethod($method): \ReflectionMethod
-    {
-        if ($method instanceof \ReflectionMethod) {
-            return $method;
-        }
-        return new \ReflectionMethod($this->classInstance, $method);
     }
 }
