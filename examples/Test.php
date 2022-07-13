@@ -2,6 +2,9 @@
 
 namespace MMedia\ClassController\Examples;
 
+/**
+ * This is an example class that will later be used in a Controller that extends ClassController. Note that this file and its respective Controller are also used in the tests.
+ */
 class Test
 {
     public function __construct()
@@ -43,7 +46,17 @@ class Test
         return true;
     }
 
-    public function mixedParam($param)
+    public function untypedParam($param)
+    {
+        return true;
+    }
+
+    public function mixedParam(mixed $param)
+    {
+        return true;
+    }
+
+    public function intOrFloatParam(int|float $param)
     {
         return true;
     }
