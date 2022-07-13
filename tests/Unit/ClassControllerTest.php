@@ -122,6 +122,41 @@ class ClassControllerTest extends TestCase
     }
 
     /**
+     * Test that we can add a new Route and call it using a method from the inherited class and get a 302 redirect with success message
+     *
+     * @return void
+     */
+    public function test_that_we_can_add_a_new_route_and_call_it_using_a_method_from_the_inherited_class_and_get_a_302_redirect_with_success_message()
+    {
+        // Current class FQN
+        $classFQN = get_class($this);
+
+        // Instantiate the ClassController class and assert no error is thrown
+        $classController = new ClassController($classFQN);
+
+        // Function name to test
+        $functionName = 'test_that_true_is_true';
+
+        // Add a new route to test with, using the $classController callback
+        Route::any('test-route', ['as' => 'test-route'])->name('test-route')->uses(function () use ($classController, $functionName) {
+            // Call the method to test
+            return $classController->$functionName();
+        });
+
+        // Assert the route exists
+        $this->assertTrue(Route::has('test-route'));
+
+        // Call the route
+        $response = $this->call('GET', '/test-route');
+
+        // Assert the response has a 200 status code
+        $this->assertEquals(302, $response->getStatusCode());
+
+        // Assert there is a success key in the session
+        $this->assertArrayHasKey('success', $response->getSession()->all());
+    }
+
+    /**
      * Test that we can add a new Route and call it using a method from the inherited class
      *
      * @return void
