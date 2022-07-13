@@ -14,13 +14,10 @@ class TestClassControllerTest extends TestCase
 {
 
     private $classControllerNamespace = "MMedia\ClassController\Examples\TestClassController";
-    private $classController;
 
     public function setUp(): void
     {
         parent::setUp();
-        // Route::any('test-route', ['as' => 'test-route']);
-        $this->classController = new TestClassController();
     }
 
 
@@ -29,7 +26,7 @@ class TestClassControllerTest extends TestCase
      *
      * @return void
      */
-    public function test_method_noParams()
+    public function testShouldNotValidateIfNoParamsInMethod()
     {
         $this->createRoute('noParams');
 
@@ -53,7 +50,7 @@ class TestClassControllerTest extends TestCase
         );
     }
 
-    public function test_method_mixedParamWithDefault()
+    public function testShouldNotValidateIfParamHasDefaultValue()
     {
         $this->createRoute('mixedParamWithDefault');
 
@@ -77,49 +74,39 @@ class TestClassControllerTest extends TestCase
         );
     }
 
-    public function testEachParamType()
+    /**
+     * testEachTypedParamWithoutDefaultShouldBeRequired
+     *
+     * @dataProvider methodsWithParams
+     * @testdox The $paramType should be validated as 'required'
+     * @return void
+     */
+    public function testEachTypedParamWithoutDefaultShouldBeRequired($paramType)
     {
-        $paramTypes = [
-            'mixedParam',
-            'intParam',
-            'stringParam',
-            'boolParam',
-            'arrayParam',
-            'objectParam',
-            'floatParam',
-            'mixedVariadicParam',
-            'intVariadicParam',
-            'stringVariadicParam',
-            'boolVariadicParam',
-            'arrayVariadicParam',
-            'objectVariadicParam',
-            'floatVariadicParam',
-            // 'mixedParamWithDefaultAndVariadic' // Special test case, that has a default param so wont show the "param" as an error
-        ];
-        foreach ($paramTypes as $paramType) {
-            $this->createRoute($paramType);
-            $response = $this->getJson('/test-route');
-            $jsonData = $response->decodeResponseJson();
-            $this->assertEquals(422, $response->getStatusCode());
-            // $jsonData should contain the key "param"
-            $this->assertArrayHasKey('errors', $jsonData, "Missing errors key in JSON response for $paramType");
-            $this->assertArrayHasKey('param', $jsonData['errors'], "Missing param key in JSON response for $paramType");
-            // The key param should contain an array
-            $this->assertIsArray($jsonData['errors']['param']);
-            // The array should contain at least one element
-            $this->assertGreaterThan(0, count($jsonData['errors']['param']));
-            // The first element should say "The param field is required."
-            $this->assertStringContainsString(
-                "is required.",
-                $jsonData['errors']['param'][0]
-            );
+        $this->createRoute($paramType);
 
-            /**
-             * Calling directly (not as JSON) should return a 302 redirect with success message
-             */
-            $response = $this->call('GET', '/test-route');
-            $this->assertRedirectWithErrors($response);
-        }
+        $response = $this->getJson('/test-route');
+        $this->assertEquals(422, $response->getStatusCode());
+
+        $jsonData = $response->decodeResponseJson();
+        // $jsonData should contain the key "errors" and "param", for the missing param type
+        $this->assertArrayHasKey('errors', $jsonData, "Missing errors key in JSON response for $paramType");
+        $this->assertArrayHasKey('param', $jsonData['errors'], "Missing param key in JSON response for $paramType");
+        // The key param should contain an array
+        $this->assertIsArray($jsonData['errors']['param']);
+        // The array should contain at least one element
+        $this->assertGreaterThan(0, count($jsonData['errors']['param']));
+        // The first element should say "The param field is required."
+        $this->assertStringContainsString(
+            "is required.",
+            $jsonData['errors']['param'][0]
+        );
+
+        /**
+         * Calling directly (not as JSON) should return a 302 redirect with error message
+         */
+        $response = $this->call('GET', '/test-route');
+        $this->assertRedirectWithErrors($response);
     }
 
 
@@ -146,5 +133,28 @@ class TestClassControllerTest extends TestCase
 
         // Assert the route exists
         $this->assertTrue(Route::has('test-route'));
+    }
+
+    public function methodsWithParams()
+    {
+        return [
+            ['untypedParam'],
+            ['mixedParam'],
+            ['intParam'],
+            ['intOrFloatParam'],
+            ['stringParam'],
+            ['boolParam'],
+            ['arrayParam'],
+            ['objectParam'],
+            ['floatParam'],
+            ['mixedVariadicParam'],
+            ['intVariadicParam'],
+            ['stringVariadicParam'],
+            ['boolVariadicParam'],
+            ['arrayVariadicParam'],
+            ['objectVariadicParam'],
+            ['floatVariadicParam'],
+            // ['mixedParamWithDefaultAndVariadic'] // Special test case, that has a default param so wont show the "param" as an error
+        ];
     }
 }
