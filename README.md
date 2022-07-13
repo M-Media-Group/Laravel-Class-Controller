@@ -28,7 +28,7 @@ class TestClassController extends ClassController
     //Done. All methods from the class Test are inherited and wrapped in Laravel validation automatically
 }
 ```
-When you extend a `ClassController` and give your new controller a name like `{inheritedClass}ClassController`, all of the methods of `{inheritedClass}` are inherited and wrapped with Laravel validation rules and responses. If you need a namespaced class, you can use `[inheritedClass](#inheritedclass)` property to specify a class with its namespace instead.
+When you extend a `ClassController` and give your new controller a name like `{inheritedClass}ClassController`, all of the methods of `{inheritedClass}` are inherited and wrapped with Laravel validation rules and responses. If you need a namespaced class, you can use [`inheritedClass`](#inheritedclass) property to specify a class with its namespace instead.
 
 In your routes, you can now call all the methods of the inheritedClass, [`Test::class`](https://github.com/M-Media-Group/Laravel-Class-Controller/blob/master/examples/Test.php) in this case, directly:
 ```php
@@ -95,11 +95,11 @@ public function mixedParam(Request $request)
     // You can write your own $request->validate(), or use the one from ClassController which validates that the data passed to the original class method is correct
     $validatedData = $this->getValidatedData($this->class(), 'mixedParam');
 
-    // Call the original meethod if you want, or override it completely
+    // Call the original method if you want, or override it completely
     return $this->class()->mixedParam($validatedData['param']);
 }
 ```
-Note that while you can write your own validation logic, here we chose to use the already existing method [`getValidatedData()`](#getvalidateddataclassnamemethodname-array) that is provided by the ClassController - the method takes a class method name as a parameter and then validates all the required method parameters.
+Note that while you can write your own validation logic, here we chose to use the already existing method [`getValidatedData()`](#getvalidateddataclassname-methodname-array) that is provided by the ClassController - the method takes a class method name as a parameter and then validates all the required method parameters.
 
 ## In detail
 
