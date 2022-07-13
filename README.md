@@ -19,22 +19,21 @@ composer require mmedia/classcontroller
 ```php
 use MMedia\ClassController\Http\Controllers\ClassController;
 
-class MainGCIClassController extends ClassController
+class TestClassController extends ClassController
 {
-  // Done! All MainGCI class methods are auto-inherited now
+    protected $inheritedClass = 'MMedia\ClassController\Examples\Test';
+
+    //Done. All methods from the class Test are inherited and wrapped in Laravel validation automatically
 }
 ```
-When you extend a `ClassController` and give your new controller a name like `{inheritedClass}ClassController`, all of the methods of `{inheritedClass}` are inherited and wrapped with Laravel validation rules and responses.
+When you extend a `ClassController` and give your new controller a name like `{inheritedClass}ClassController`, all of the methods of `{inheritedClass}` are inherited and wrapped with Laravel validation rules and responses. If you need a namespaced class, you can use `[inheritedClass](#inheritedclass)` property to specify a class with its namespace instead.
 
 In your routes, you can now call all the methods of the inheritedClass, [`MainGCI::class`](https://gitlab.tkblueagency.com:2443/tkblue/tkblue-web/-/blob/Develop/inc/class/MainGCI.class.php) in this case, directly:
 ```php
-// We're just calling the methods in the inherited class directly
-Route::get('/zones', [MainGCIClassController::class, 'getZones']); // === \MainGCI::getZones()
-Route::get('/zones/{idZone}/fe', [MainGCIClassController::class, 'getZoneFE']); // === \MainGCI::getZoneFE($idZone) + auto validation!
-// etc
+// We're just using the methods in the inherited class methods directly
+Route::get('/noParams', [MainGCIClassController::class, 'noParams']); // === \MainGCI::noParams()
+Route::get('/mixedParam/{param}', [MainGCIClassController::class, 'mixedParam']); // === \MainGCI::mixedParam($idZone) + auto validation!
 ```
-
-If you don't want to name your controllers this way or your class needs a path, you can define the [inheritedClass property](#inheritedclass) instead.
 
 <details><summary>Here is the equivalent when extending the default Controller instead</summary>
 In a `ClassController`, all this code is auto handled for you!
@@ -46,18 +45,18 @@ namespace App\Http\Controllers\Api\Test;
 
 use Illuminate\Http\Request;
 
-class MainGCIController extends Controller
+class TestController extends Controller
 {
-    public function getZoneFE(Request $request)
+    public function mixedParam(Request $request)
     {
         $validatedData = $request->validate([
-            'idZone' => 'required',
+            'param' => ['required', 'integer'],
         ]);
 
-        $GCI = new \MainGCI();
+        $testClass = new Test();
 
         try {
-            return $GCI->getZoneFE($validatedData['idZone']);
+            return $testClass->mixedParam($validatedData['param']);
         } catch (\Exception $e) {
             return abort(400, $e->getMessage());
         }
@@ -73,7 +72,7 @@ Sometimes a class requires some parameters in its constructor. To define these p
 ```php
 protected function classParameters(): iterable
 {
-    return [$GLOBALS['Db']];
+    return [$param1, $param2];
 }
 ```
 
@@ -89,11 +88,13 @@ protected function postClassSetup(): void
 ## Overriding a specific method
 If you need to override the behaviour of a specific method, you can simply define it in your controller using the method name that you want to override. Using the original example of `MainGCI::class`:
 ```php
-public function getZoneFE(Request $request)
+public function mixedParam(Request $request)
 {
-    // You can write your own $request->validate(), or use the one from ClassController
-    $validatedData = $this->getValidatedData('getZoneFE');
-    return $this->class()->getZoneFE($validatedData['idZone']);
+    // You can write your own $request->validate(), or use the one from ClassController which validates that the data passed to the original class method is correct
+    $validatedData = $this->getValidatedData('mixedParam');
+
+    // Call the original meethod if you want, or override it completely
+    return $this->class()->mixedParam($validatedData['param']);
 }
 ```
 Note that while you can write your own validation logic, here we chose to use the already existing method [`getValidatedData()`](#getvalidateddatamethodname-array) that is provided by the ClassController - the method takes a class method name as a parameter and then validates all the required method parameters.
@@ -121,8 +122,9 @@ Validation exceptions will be handled natively by Laravel validator, and will re
 ```json
 {
   "errors": {
-    "idUser": [
-      "id user est requis."
+    "param": [
+      "Param is required.",
+      "Param must be an integer."
     ]
   }
 }
@@ -132,6 +134,9 @@ Remember, you must pass the `accept` header in order to get JSON data back.
 
 #### Method exceptions
 If the called method throws an exception, it will be caught by the ClassController. If you have specified that you accept JSON in the response, the message will be returned as JSON with the key-value of `{"message": "Error message"}`, and a status code of `400`. Otherwise, the Laravel 400 page will be shown.
+
+#### ClassController exceptions
+Exceptions may be thrown by the ClassController itself, especially if its not set up properly. As an example: if the inheritedClass could not be determined, you will receive a native PHP error with a clear message and a status code of `500`.
 
 ## All methods
 
@@ -160,6 +165,10 @@ If you do _not_ define this property and your controller follows the naming stan
 - Authorisation is not implemented - however, you can authorise requests at the [route level](https://laravel.com/docs/8.x/authorization#middleware-actions-that-dont-require-models)
 
 ## Package development
+
+### Running
+
+You can use the included VSCode devcontainer to develop within a PHP container.
 
 ### Testing
 
