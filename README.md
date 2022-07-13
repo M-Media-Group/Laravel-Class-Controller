@@ -17,6 +17,8 @@ composer require mmedia/classcontroller
 ## Usage
 
 ```php
+use MMedia\ClassController\Http\Controllers\ClassController;
+
 class MainGCIClassController extends ClassController
 {
   // Done! All MainGCI class methods are auto-inherited now
