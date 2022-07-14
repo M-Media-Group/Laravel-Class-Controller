@@ -34,7 +34,7 @@ In your routes, you can now call all the methods of the inheritedClass, [`Test::
 ```php
 // We're just using the methods in the inherited class methods directly
 Route::get('/noParams', [TestClassController::class, 'noParams']); // === \Test::noParams()
-Route::get('/mixedParam/{param}', [TestClassController::class, 'mixedParam']); // === \Test::mixedParam($idZone) + auto validation!
+Route::get('/mixedParam/{param}', [TestClassController::class, 'mixedParam']); // === \Test::mixedParam($param) + auto validation!
 ```
 
 <details><summary>Here is the equivalent when extending the default Controller instead</summary>
