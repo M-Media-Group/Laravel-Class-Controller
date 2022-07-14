@@ -215,11 +215,11 @@ class myClass
    * @throws ValidationException
    * @return string
    */
-  public function test($param1, $param2)
+  public function test(string $param1, ?int $param2)
   {
       $validatedData = $this->getValidatedData(get_class($this), __FUNCTION__);
 
-      // Your code here
+      // Your code here. $validatedData['param1'] is a valid string and $validatedData['param2'] is a valid integer or null.
 
       return $validatedData['param1'] . $validatedData['param2'];
   }
