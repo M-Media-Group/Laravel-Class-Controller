@@ -27,7 +27,7 @@ class ClassControllerServiceProvider extends ServiceProvider
             // Publish the stubs
             $this->publishes([
                 __DIR__ . '/../stubs' => base_path('stubs'),
-            ], 'stubs');
+            ], 'classcontroller-stubs');
 
             // Publishing the views.
             /*$this->publishes([

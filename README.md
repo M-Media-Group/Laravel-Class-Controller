@@ -105,13 +105,13 @@ Note that while you can write your own validation logic, here we chose to use th
 First, make sure you publish the stubs with the following command below:
 
 ```bash
-php artisan vendor:publish --provider="MMedia\ClassController\ClassControllerServiceProvider" --tag=stubs
+php artisan vendor:publish --tag=classcontroller-stubs
 ```
 
 You can then use the Artisan command to create ClassControllers whenever you want. Specify the `---type=class` option, followed by the class name you are inheriting, to create a new ClassController:
 
 ```bash
-php artisan make:controller --type=class Test
+php artisan make:controller --type=class TestClassController
 ```
 
 ## In detail

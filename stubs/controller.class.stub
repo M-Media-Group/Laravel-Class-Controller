@@ -6,7 +6,7 @@ use MMedia\ClassController\Http\Controllers\ClassController;
 
 use Illuminate\Http\Request;
 
-class {{ class }}ClassController extends ClassController
+class {{ class }} extends ClassController
 {
 
     protected $inheritedClass = '{{ class }}';
