@@ -217,6 +217,7 @@ class myClass
    */
   public function test(string $param1, ?int $param2)
   {
+      // Note: in the real world, it makes little sense to get validated data from within the same method as the method that is being called - PHP would have already thrown an error if the params were not valid types.
       $validatedData = $this->getValidatedData(get_class($this), __FUNCTION__);
 
       // Your code here. $validatedData['param1'] is a valid string and $validatedData['param2'] is a valid integer or null.
@@ -264,3 +265,6 @@ If you discover any security related issues, please email contact@mmediagroup.fr
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+
+```php
+Route::get('/add', [MathClassController::class, 'add']);

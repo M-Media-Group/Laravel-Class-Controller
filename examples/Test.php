@@ -3,7 +3,10 @@
 namespace MMedia\ClassController\Examples;
 
 /**
- * This is an example class that will later be used in a Controller that extends ClassController. Note that this file and its respective Controller are also used in the tests.
+ * This is an example class that will later be used in a Controller that extends ClassController.
+ * All of the methods below, when called through a ClassController, will automatically be wrapped in Laravel validation rules and handling based on the parameters the given method takes.
+ *
+ * Note that this file and its respective TestClassController are also used in the tests.
  */
 class Test
 {
