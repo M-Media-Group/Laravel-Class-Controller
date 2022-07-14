@@ -3,7 +3,7 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/mmedia/classcontroller.svg?style=flat-square)](https://packagist.org/packages/mmedia/classcontroller)
 [![Total Downloads](https://img.shields.io/packagist/dt/mmedia/classcontroller.svg?style=flat-square)](https://packagist.org/packages/mmedia/classcontroller)
 ![Maintained](https://img.shields.io/maintenance/yes/2022?style=flat-square)
-
+![Coverage](https://img.shields.io/badge/coverage-93%25-green.svg?style=flat-square)
 <!-- ![GitHub Actions](https://github.com/mmedia/classcontroller/actions/workflows/main.yml/badge.svg) -->
 
 The ClassController extends the basic Controller and allows you to use defined PHP class methods directly as controller methods.
