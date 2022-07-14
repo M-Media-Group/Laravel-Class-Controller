@@ -3,6 +3,7 @@
 namespace MMedia\ClassController;
 
 use Illuminate\Support\ServiceProvider;
+use MMedia\ClassController\Http\Controllers\ClassController;
 
 class ClassControllerServiceProvider extends ServiceProvider
 {
@@ -59,7 +60,7 @@ class ClassControllerServiceProvider extends ServiceProvider
 
         // Register the main class to use with the facade
         $this->app->singleton('classcontroller', function () {
-            return new ClassController;
+            return new ClassController();
         });
     }
 }

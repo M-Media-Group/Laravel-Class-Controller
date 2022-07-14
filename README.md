@@ -195,7 +195,7 @@ A protected string ('MyClass') or class (`MyClass::class`). This will be the cla
 
 If you do _not_ define this property and your controller follows the naming standard of `{inheritedClass}ClassController extends ClassController`, the `inheritedClass` will be taken from your controllers name.
 
-## ValidatesClassMethods trait
+## `ValidatesClassMethods` trait
 
 If you want to use the validator method but don't want to extend your controller with the `ClassController` class (or want to use the validation logic outside of a controller), you can use the `ValidatesClassMethods` trait in your code.
 
