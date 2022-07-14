@@ -212,6 +212,7 @@ class myClass
    *
    * @param mixed $param1
    * @param mixed $param2
+   * @throws ValidationException
    * @return string
    */
   public function test($param1, $param2)
