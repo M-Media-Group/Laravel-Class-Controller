@@ -210,8 +210,8 @@ class myClass
   /**
    * Example method showing how to use the `getValidatedData` method.
    *
-   * @param mixed $param1
-   * @param mixed $param2
+   * @param string $param1
+   * @param int|null $param2
    * @throws ValidationException
    * @return string
    */
