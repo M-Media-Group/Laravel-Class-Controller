@@ -18,6 +18,8 @@ composer require mmedia/classcontroller
 
 ## Usage
 
+See the [`Test::class`](https://github.com/M-Media-Group/Laravel-Class-Controller/blob/master/examples/Test.php) that this example is using.
+
 ```php
 use MMedia\ClassController\Http\Controllers\ClassController;
 
@@ -28,6 +30,7 @@ class TestClassController extends ClassController
     //Done. All methods from the class Test are inherited and wrapped in Laravel validation automatically
 }
 ```
+
 When you extend a `ClassController` and give your new controller a name like `{inheritedClass}ClassController`, all of the methods of `{inheritedClass}` are inherited and wrapped with Laravel validation rules and responses. If you need a namespaced class, you can use [`inheritedClass`](#inheritedclass) property to specify a class with its namespace instead.
 
 In your routes, you can now call all the methods of the inheritedClass, [`Test::class`](https://github.com/M-Media-Group/Laravel-Class-Controller/blob/master/examples/Test.php) in this case, directly:
@@ -49,6 +52,21 @@ use Illuminate\Http\Request;
 
 class TestController extends Controller
 {
+  public function noParams(Request $request)
+    {
+        $testClass = new Test();
+
+        try {
+            $methodResult = $testClass->noParams();
+            if ($request->wantsJson()) {
+                return response()->json($methodResult, 200);
+            }
+            return back()->with('success', $methodResult);
+        } catch (\Exception $e) {
+            return abort(400, $e->getMessage());
+        }
+    }
+
     public function mixedParam(Request $request)
     {
         $validatedData = $request->validate([
@@ -58,7 +76,11 @@ class TestController extends Controller
         $testClass = new Test();
 
         try {
-            return $testClass->mixedParam($validatedData['param']);
+          $methodResult = $testClass->mixedParam($validatedData['param']);
+            if ($request->wantsJson()) {
+                return response()->json($methodResult, 200);
+            }
+            return back()->with('success', $methodResult);
         } catch (\Exception $e) {
             return abort(400, $e->getMessage());
         }
