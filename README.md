@@ -121,7 +121,7 @@ public function mixedParam(Request $request)
     return $this->class()->mixedParam($validatedData['param']);
 }
 ```
-Note that while you can write your own validation logic, here we chose to use the already existing method [`getValidatedData()`](#getvalidateddataclassname-methodname-array) that is provided by the ClassController - the method takes a class method name as a parameter and then validates all the required method parameters.
+Note that while you can write your own validation logic, here we chose to use the already existing method [`getValidatedData()`](#getvalidateddataclassname-methodname-array) that is provided by the `ValidatesClassMethods` trait - the method takes a class name and method name as parameters and then validates all the required method parameters.
 
 ## Creating a ClassController with Laravel Artisan
 First, make sure you publish the stubs with the following command below:
