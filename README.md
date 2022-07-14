@@ -265,6 +265,3 @@ If you discover any security related issues, please email contact@mmediagroup.fr
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
-
-```php
-Route::get('/add', [MathClassController::class, 'add']);
