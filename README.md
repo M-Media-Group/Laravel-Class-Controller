@@ -231,7 +231,7 @@ class myClass
 - Untyped method parameters will not generate a specific type validation rule - [see: Validation](#validation)
 - Method parameters of type array will not validate each array element
 - Methods that don't specify parameters but instead use `func_get_args()` will not generate any validation rules
-- Authorisation is not implemented - however, you can authorise requests at the [route level](https://laravel.com/docs/8.x/authorization#middleware-actions-that-dont-require-models)
+- Authorisation is not implemented - however, you can authorise requests at the [route level](https://laravel.com/docs/authorization#via-middleware)
 
 ## Package development
 
